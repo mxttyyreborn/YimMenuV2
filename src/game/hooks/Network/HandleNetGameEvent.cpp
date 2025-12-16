@@ -124,6 +124,14 @@ namespace YimMenu::Hooks
 
 	bool ShouldAllowNetEvent(Player player, uint16_t event_id, rage::datBitBuffer& buffer)
 	{
+		if ((NETWORK::NETWORK_IS_ACTIVITY_SESSION() ||
+     NETWORK::NETWORK_IS_IN_TRANSITION()) &&
+    static_cast<rage::netGameEvent::Type>(event_id) ==
+        rage::netGameEvent::Type::SCRIPTED_GAME_EVENT)
+	{
+    return true;
+	}
+
 		switch (static_cast<rage::netGameEvent::Type>(event_id))
 		{
 		case rage::netGameEvent::Type::REQUEST_CONTROL_EVENT:
