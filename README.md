@@ -1,29 +1,51 @@
+
 # YimMenuV2
 
-Experimental menu for GTA 5: Enhanced
+Updated for **A Safehouse in the Hills**
 
-## How to use
+[![yimmenuv2](https://img.shields.io/badge/YimMenuV2-DOWNLOAD-blue)](https://github.com/mxttyyreborn/YimMenuV2/releases/download/GTAV-Enhanced/YimMenuV2.dll)
+## KNOWN BUGS
 
-1. Download the latest version of FSL from [here](https://www.unknowncheats.me/forum/grand-theft-auto-v/616977-fsl-local-gtao-saves.html) and place version.dll in your GTA V directory. Using FSL is now optional but highly recommended for account safety
-2. Download YimMenuV2 from [GitHub Releases](https://github.com/YimMenu/YimMenuV2/releases/tag/nightly)
-3. Download an injector, such as [Xenos](https://www.unknowncheats.me/forum/general-programming-and-reversing/124013-xenos-injector-v2-3-2-a.html)
-4. Open Rockstar Launcher, select Grand Theft Auto V Enhanced, go to settings, and disable BattlEye. If you are using Steam or Epic Games, you may have to pass the -nobattleye command line parameter as well
-5. Launch GTA V, then use your injector to inject YimMenuV2.dll at the main menu
+- Doing a heist with another player will cause one of you to get stuck in an infinite "Launching Session" screen.
+- Joining a session via YimMenu's network tab will sometimes put you in a YimMenu public even if you select invite only.
 
-## How to open the menu?
 
-Press the `INSERT` key or `Ctrl+\` to open the menu
- 
-## Common issues
+## NEW - 1.72
 
-### I keep getting desynced from public sessions every five minutes
+--- NEW VEHICLES ---
 
-We currently do not have a BattlEye bypass, and legitimate hosts will eventually remove you due to a heartbeat failure. There is currently no way to stop this other than using an actual (private) bypass
+- Grotti GT750
+- Vapid FMJ MK V
+- Progen Luiva
+- Ubermacht Sentinel XS4
+- Karin Vivanite 2 (Self Driving Car, cannot be saved to garage, unsure as to why)
+- Karin Vivanite 1 (Regular SUV version of Self Driving Car)
+- Shitzu Drift Keitora
+- Shitzu Keitora
+- Dinka RT3000
+- Vapid Dominator GT
+- Bravado Buffalo STX Pursuit
+- Bravado Buffalo Cruiser
+- Grotti Itali Classic
+- Pfister X-treme
+- Pfister Astrale
 
-### I removed FSL and all my progress disappeared!
+--- NEW PEDS ---
 
-FSL reroutes account save data to disk, so any progress made with FSL will only show up if you have FSL enabled. If you don't want this, you can also use YimMenuV2 without FSL, but this is not recommended
+- CSB_Avi_04
+- IG_AmandaTownley_02
+- IG_Avi_04
+- CS_AmandaTownley_02
+- A_C_Cat_02
+- IG_FIBLeader_01
+- G_M_M_KnoWay_01
+- IG_Faber_02
+- IG_ValenCheat
+- CSB_Faber_02
+- P_Michael_02
+- S_M_M_HighSec_06
 
-### I removed FSL and the game doesn't start up anymore
+--- NEW WEAPONS ---
 
-This is a known issue; delete "Documents/GTAV Enhanced/Profiles" to fix
+- Throwable Newspaper (doesn't work for some unknown reason, code is there though.)
+
