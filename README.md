@@ -3,7 +3,7 @@
 
 Updated for **A Safehouse in the Hills**
 
-[![yimmenuv2](https://img.shields.io/badge/YimMenuV2-DOWNLOAD-blue)](https://github.com/mxttyyreborn/YimMenuV2/releases/download/GTAV-Enhanced/YimMenuV2.dll)
+[![yimmenuv2](https://img.shields.io/badge/YimMenuV2-DOWNLOAD-blue)]([https://github.com/mxttyyreborn/YimMenuV2/releases/download/GTAV-Enhanced/YimMenuV2.dll](https://github.com/mxttyyreborn/YimMenuV2/releases/tag/1.72))
 ## KNOWN BUGS
 
 - Doing a heist with another player will cause one of you to get stuck in an infinite "Launching Session" screen.
