@@ -19,7 +19,6 @@ Updated for **A Safehouse in the Hills**
 - Progen Luiva
 - Ubermacht Sentinel XS4
 - Karin Vivanite 2 (Self Driving Car, cannot be saved to garage, unsure as to why)
-- Karin Vivanite 1 (Regular SUV version of Self Driving Car)
 - Shitzu Drift Keitora
 - Shitzu Keitora
 - Dinka RT3000
