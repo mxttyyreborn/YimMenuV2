@@ -161,7 +161,7 @@ namespace YimMenu
 				auto veh = SpawnFromJson(vehicle_json);
 
 				if (veh)
-				}
+				{
 					if (spawnInside)
 						Self::GetPed().SetInVehicle(veh.GetHandle());
 					Notifications::Show("Persist Car", std::format("Spawned {}", fileName), NotificationType::Success);
@@ -175,7 +175,7 @@ namespace YimMenu
 			}
 
 			file_stream.close();
-	}
+		}
 		else
 			Notifications::Show("Persist Car", "Select a file first", NotificationType::Warning);
 	}
