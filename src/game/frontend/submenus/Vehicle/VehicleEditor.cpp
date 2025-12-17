@@ -168,7 +168,7 @@ namespace YimMenu::Submenus
 			
 			if (currentVeh != Self::GetVehicle().GetHandle())
 			{
-				prepareVehicle()
+				prepareVehicle();
 				return;
 			}
 			
