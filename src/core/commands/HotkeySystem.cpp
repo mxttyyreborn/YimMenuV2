@@ -152,7 +152,7 @@ namespace YimMenu
 			}
 			else if (state.contains(key))
 			{
-				state.erase(key));
+				state.erase(key);
 			}
 		}
 	}
