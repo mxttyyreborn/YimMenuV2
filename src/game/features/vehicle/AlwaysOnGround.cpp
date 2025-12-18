@@ -1,4 +1,4 @@
-#include "src/game/commands/LoopedCommand.hpp"
+#include "src/core/commands/LoopedCommand.hpp"
 #include "src/game/gta/Vehicle.hpp"
 #include "src/game/gta/Entity.hpp"
 #include "src/game/gta/Ped.hpp"
