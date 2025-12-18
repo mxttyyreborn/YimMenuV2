@@ -5,34 +5,42 @@
 
 namespace YimMenu::Features
 {
-    class AlwaysOnGround : public LoopedCommand
-    {
-        using LoopedCommand::LoopedCommand;
+	class AlwaysOnGround : public LoopedCommand
+	{
+		using LoopedCommand::LoopedCommand;
 
-        void OnTick() override
-        {
-            // Get the player's current vehicle safely
-            if (auto vehicle = Self::GetVehicle())
-            {
-                // Current speed (m/s)
-                const float speed = vehicle.GetSpeed();
+		void OnTick() override
+		{
+			if (auto vehicle = Self::GetVehicle())
+			{
+				// Raw GTA entity handle
+				auto handle = vehicle.GetHandle();
 
-                // Scale downforce with speed
-                const float downforce = std::clamp(speed * 12.0f, 50.0f, 300.0f);
+				// Vehicle speed
+				float speed = ENTITY::GET_ENTITY_SPEED(handle);
 
-                // Apply downward force to keep wheels planted
-                vehicle.ApplyForce(
-                    { 0.0f, 0.0f, -downforce }, // force vector
-                    true                        // center of mass
-                );
-            }
-        }
-    };
+				// Downforce scaled with speed
+				float downforce = std::clamp(speed * 12.0f, 50.0f, 300.0f);
 
-    // Toggleable command (ON = active every tick, OFF = disabled)
-    static AlwaysOnGround _AlwaysOnGround{
-        "alwaysonground",
-        "Always On Ground",
-        "Applies downward force to keep vehicle wheels on the ground"
-    };
+				ENTITY::APPLY_FORCE_TO_ENTITY_CENTER_OF_MASS(
+					handle,
+					1,          // Force type
+					0.0f,       // X
+					0.0f,       // Y
+					-downforce, // Z (downward)
+					false,
+					true,
+					true,
+					false
+				);
+			}
+		}
+	};
+
+	// Register command
+	static AlwaysOnGround _AlwaysOnGround{
+		"alwaysonground",
+		"Always On Ground",
+		"Keeps vehicle wheels pressed to the ground using downforce"
+	};
 }
