@@ -11,22 +11,11 @@ namespace YimMenu::Features
         {
             if (auto vehicle = Self::GetVehicle())
             {
-                // Reduce upward velocity to keep wheels planted
-                auto velocity = vehicle.GetVelocity();
-
-                // Only dampen upward movement
-                if (velocity.z > 0.0f)
-                {
-                    velocity.z *= 0.25f;
-                    vehicle.SetVelocity(velocity);
-                }
+                vehicle.SetGravity(20.0f);
             }
         }
     };
 
-    static AlwaysOnGround _AlwaysOnGround{
-        "alwaysonground",
-        "Always On Ground",
-        "Keeps vehicle planted by damping upward movement"
-    };
+    // This line is what makes it APPEAR in the Vehicle menu
+    static AlwaysOnGround _AlwaysOnGround{"alwaysonground", "Always On Ground", "Keeps vehicle pressed to the ground using extra gravity"};
 }
