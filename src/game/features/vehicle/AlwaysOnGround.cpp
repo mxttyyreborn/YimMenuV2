@@ -11,18 +11,15 @@ namespace YimMenu::Features
         {
             if (auto vehicle = Self::GetVehicle())
             {
-                // Get speed using wrapper
-                const float speed = vehicle.GetSpeed();
+                // Reduce upward velocity to keep wheels planted
+                auto velocity = vehicle.GetVelocity();
 
-                // Simple downforce scaling
-                const float downforce = std::clamp(speed * 10.0f, 40.0f, 250.0f);
-
-                // Apply force using native through handle
-                vehicle.ApplyForceToCenterOfMass(
-                    0.0f,
-                    0.0f,
-                    -downforce
-                );
+                // Only dampen upward movement
+                if (velocity.z > 0.0f)
+                {
+                    velocity.z *= 0.25f;
+                    vehicle.SetVelocity(velocity);
+                }
             }
         }
     };
@@ -30,6 +27,6 @@ namespace YimMenu::Features
     static AlwaysOnGround _AlwaysOnGround{
         "alwaysonground",
         "Always On Ground",
-        "Applies downforce to keep vehicle wheels on the ground"
+        "Keeps vehicle planted by damping upward movement"
     };
 }
