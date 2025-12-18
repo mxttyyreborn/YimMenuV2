@@ -1,49 +1,46 @@
 #include "core/commands/LoopedCommand.hpp"
 #include "game/backend/Self.hpp"
+#include "game/gta/Natives.hpp"
 
-#include <algorithm>
+#include <algorithm> // std::clamp
 
 namespace YimMenu::Features
 {
-    class AlwaysOnGround : public LoopedCommand
-    {
-        using LoopedCommand::LoopedCommand;
+	class AlwaysOnGround : public LoopedCommand
+	{
+		using LoopedCommand::LoopedCommand;
 
-        void OnTick() override
-        {
-            if (auto vehicle = Self::GetVehicle())
-            {
-                // Get raw GTA vehicle handle from wrapper
-                const auto handle = vehicle.GetHandle();
-                if (!handle)
-                    return;
+		virtual void OnTick() override
+		{
+			auto veh = Self::GetVehicle();
+			if (!veh)
+				return;
 
-                // Get speed via wrapper
-                const float speed = vehicle.GetSpeed();
+			const int handle = veh.GetHandle();
+			if (handle == 0)
+				return;
 
-                // Scale downforce with speed
-                const float downforce = std::clamp(speed * 12.0f, 50.0f, 300.0f);
+			const float speed = ENTITY::GET_ENTITY_SPEED(handle);
 
-                // Apply downward force using native
-                ENTITY::APPLY_FORCE_TO_ENTITY_CENTER_OF_MASS(
-                    handle,
-                    1,          // Force type
-                    0.0f,
-                    0.0f,
-                    -downforce, // Push down
-                    false,
-                    true,
-                    true,
-                    false
-                );
-            }
-        }
-    };
+			// Scale downward force with speed so it doesn't feel crazy at low speed.
+			const float downforce = std::clamp(speed * 12.0f, 50.0f, 300.0f);
 
-    // Toggle command (same pattern as RocketBoost)
-    static AlwaysOnGround _AlwaysOnGround{
-        "alwaysonground",
-        "Always On Ground",
-        "Applies downward force to keep vehicle wheels on the ground"
-    };
+			ENTITY::APPLY_FORCE_TO_ENTITY_CENTER_OF_MASS(
+				handle,
+				1,          // forceType
+				0.0f,       // x
+				0.0f,       // y
+				-downforce, // z (down)
+				false,
+				true,
+				true,
+				false);
+		}
+	};
+
+	static AlwaysOnGround _AlwaysOnGround{
+		"alwaysonground",
+		"Always On Ground",
+		"Applies downward force to keep vehicle wheels on the ground"
+	};
 }
