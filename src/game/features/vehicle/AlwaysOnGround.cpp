@@ -1,8 +1,8 @@
-#include "core/commands/LoopedCommand.hpp"
-#include "game/scripting/libraries/Vehicle.hpp"
-#include "game/scripting/libraries/Entity.hpp"
-#include "game/scripting/libraries/Ped.hpp"
-#include "game/scripting/libraries/Player.hpp"
+#include "src/game/commands/LoopedCommand.hpp"
+#include "src/game/gta/Vehicle.hpp"
+#include "src/game/gta/Entity.hpp"
+#include "src/game/gta/Ped.hpp"
+#include "src/game/gta/Player.hpp"
 
 namespace
 {
