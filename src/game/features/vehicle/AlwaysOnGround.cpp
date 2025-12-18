@@ -1,5 +1,8 @@
 #include "core/commands/LoopedCommand.hpp"
 #include "game/backend/Self.hpp"
+#include "game/gta/Natives.hpp"
+
+#include <algorithm>
 
 namespace YimMenu::Features
 {
@@ -7,26 +10,33 @@ namespace YimMenu::Features
 	{
 		using LoopedCommand::LoopedCommand;
 
-		void OnTick() override
+		virtual void OnTick() override
 		{
-			auto vehicle = Self::GetVehicle();
-			if (!vehicle)
+			auto veh = Self::GetVehicle();
+			if (!veh)
 				return;
 
-			// If vehicle is already touching ground, do nothing
-			if (vehicle.IsOnAllWheels())
-				return;
+			auto handle = veh.GetHandle();
 
-			// Apply a small downward force ONLY when airborne
-			// Keep this subtle or the car becomes undrivable
-			vehicle.SetGravity(1.15f);
+			const float speed = ENTITY::GET_ENTITY_SPEED(handle);
+			const float downforce = std::clamp(speed * 4.0f, 10.0f, 120.0f);
+
+			ENTITY::APPLY_FORCE_TO_ENTITY_CENTER_OF_MASS(
+				handle,
+				1,
+				0.0f,
+				0.0f,
+				-downforce,
+				false,
+				true,
+				true,
+				false);
 		}
 	};
 
-	// This is what makes it appear in the Vehicle menu
 	static AlwaysOnGround _AlwaysOnGround{
 		"alwaysonground",
 		"Always On Ground",
-		"Helps keep vehicle wheels planted without affecting handling"
+		"Keeps the vehicle pinned by applying downward force"
 	};
 }
