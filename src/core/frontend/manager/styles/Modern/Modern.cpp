@@ -39,8 +39,8 @@ namespace YimMenu
 			drawList->AddRectFilled(bgPos, ImVec2(bgPos.x + bgSize, bgPos.y + bgSize), IM_COL32(10, 10, 10, 255), rounding);
 			drawList->AddRect(bgPos, ImVec2(bgPos.x + bgSize, bgPos.y + bgSize), IM_COL32(192, 192, 192, 32), rounding, ImDrawFlags_None, 1.0f);
 
-			ImU32 bubbleColor = IM_COL32(25, 25, 31, 255);
-			ImU32 hoverColor = IM_COL32(46, 46, 51, 255);
+			ImU32 bubbleColor = IM_COL32(18, 18, 18, 255);
+			ImU32 hoverColor = IM_COL32(120, 20, 20, 255);
 			ImGui::InvisibleButton("##Bubble", ImVec2(bubbleSize, bubbleSize));
 			bool hovered = ImGui::IsItemHovered();
 			bool clicked = ImGui::IsItemClicked();
@@ -63,9 +63,9 @@ namespace YimMenu
 				}
 			}
 
-			ImU32 defaultIconColor = IM_COL32(255, 255, 255, 255);
-			ImU32 activeIconColor = IM_COL32(46, 204, 113, 255);
-			ImU32 hoveredIconColor = IM_COL32(36, 174, 93, 255);
+			ImU32 defaultIconColor = IM_COL32(220, 220, 220, 255);
+			ImU32 activeIconColor = IM_COL32(200, 40, 40, 255);
+			ImU32 hoveredIconColor = IM_COL32(160, 30, 30, 255);
 			ImU32 iconColor = submenu == activeSubmenu ? activeIconColor : (hovered ? hoveredIconColor : defaultIconColor);
 
 			ImGui::PushFont(YimMenu::Menu::Font::g_AwesomeFont);
@@ -74,9 +74,9 @@ namespace YimMenu
 			drawList->AddText(YimMenu::Menu::Font::g_AwesomeFont, 0.0f, iconPos, iconColor, submenu->m_Icon.c_str());
 			ImGui::PopFont();
 
-			ImU32 defaultTextColor = IM_COL32(255, 255, 255, 255);
-			ImU32 activeTextColor = IM_COL32(46, 204, 113, 255);
-			ImU32 hoveredTextColor = IM_COL32(36, 174, 93, 255);
+			ImU32 defaultTextColor = IM_COL32(235, 235, 235, 255);
+			ImU32 activeTextColor = IM_COL32(200, 40, 40, 255);
+			ImU32 hoveredTextColor = IM_COL32(170, 30, 30, 255);
 			ImU32 textColor = submenu == activeSubmenu ? activeTextColor : (hovered ? hoveredTextColor : defaultTextColor);
 
 			ImVec2 labelSize = ImGui::CalcTextSize(submenu->m_Name.c_str());
