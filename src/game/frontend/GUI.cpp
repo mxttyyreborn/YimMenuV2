@@ -63,7 +63,7 @@ namespace YimMenu
 	void GUI::WndProc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
 	{
 		if (msg == WM_KEYUP 
-			&& (wparam == VK_INSERT || (wparam == VK_OEM_5 && (GetKeyState(VK_CONTROL) & 0x8000) != 0)))
+			&& (wparam == VK_DELETE || (wparam == VK_OEM_5 && (GetKeyState(VK_CONTROL) & 0x8000) != 0)))
 		{
 			// Persist and restore the cursor position between menu instances
 			static POINT CursorCoords{};
