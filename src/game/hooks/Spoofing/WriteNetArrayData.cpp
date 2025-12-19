@@ -14,7 +14,7 @@ namespace YimMenu::Hooks
 
 	public:
 		FreemodeStateKick(Player player, void* array) :
-			m_Enabled(), m_LastState()
+				m_Enabled(), m_LastState()
 		{
 			if (player.GetData().m_RunFreemodeStateKick && array == GSBD::Get())
 			{
