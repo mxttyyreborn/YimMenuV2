@@ -2,106 +2,59 @@
 #include "game/backend/Self.hpp"
 #include "game/gta/Natives.hpp"
 
-#include <algorithm>
-#include <cmath>
-
-namespace YimMenu::Features
+namespace YimMenu::Features::Vehicle
 {
-	class TractionControl : public LoopedCommand
-	{
-		using LoopedCommand::LoopedCommand;
+    static LoopedCommand g_TractionControl{
+        "tractioncontrol",
+        "Traction Control",
+        "Extremely increases vehicle grip and removes wheelspin",
+        []()
+        {
+            if (!g_Self || !g_Self->m_Ped)
+                return;
 
-		// How much sideways velocity we remove per tick (0.0 = none, 1.0 = remove all)
-		// Start at ~0.80 for “very grippy”.
-		static constexpr float k_LateralDamping = 0.80f;
+            Ped ped = g_Self->m_Ped;
 
-		// Max change in forward speed per tick (limits sudden acceleration -> less wheelspin)
-		static constexpr float k_MaxForwardDeltaPerTick = 2.0f;
+            if (!PED::IS_PED_IN_ANY_VEHICLE(ped, false))
+                return;
 
-		Vehicle m_LastHandle = 0;
-		bool m_HasPrev = false;
-		float m_PrevForwardSpeed = 0.0f;
+            Vehicle vehicle = PED::GET_VEHICLE_PED_IS_IN(ped, false);
 
-		static float Dot2D(const Vector3& a, const Vector3& b)
-		{
-			return a.x * b.x + a.y * b.y;
-		}
+            if (VEHICLE::GET_PED_IN_VEHICLE_SEAT(vehicle, -1, false) != ped)
+                return;
 
-		static Vector3 Normalize2D(Vector3 v)
-		{
-			const float len = std::sqrt(v.x * v.x + v.y * v.y);
-			if (len > 0.0001f)
-			{
-				v.x /= len;
-				v.y /= len;
-			}
-			return v;
-		}
+            // Disable grip reduction (burnouts/drifting)
+            VEHICLE::SET_VEHICLE_REDUCE_GRIP(vehicle, false);
 
-		virtual void OnTick() override
-		{
-			auto veh = Self::GetVehicle();
-			if (!veh)
-			{
-				m_LastHandle = 0;
-				m_HasPrev = false;
-				m_PrevForwardSpeed = 0.0f;
-				return;
-			}
+            // Massive friction override
+            VEHICLE::SET_VEHICLE_FRICTION_OVERRIDE(vehicle, 10.0f);
 
-			const auto handle = veh.GetHandle();
+            // Prevent wheel slip / damage
+            VEHICLE::SET_VEHICLE_WHEELS_CAN_BREAK(vehicle, false);
+            VEHICLE::SET_VEHICLE_WHEELS_CAN_BURST(vehicle, false);
 
-			// Reset state when switching vehicles
-			if (handle != m_LastHandle)
-			{
-				m_LastHandle = handle;
-				m_HasPrev = false;
-				m_PrevForwardSpeed = 0.0f;
-			}
+            // Eliminate low-speed traction loss
+            VEHICLE::SET_VEHICLE_HANDLING_FLOAT(
+                vehicle,
+                "CHandlingData",
+                "fLowSpeedTractionLossMult",
+                0.0f
+            );
 
-			// Forward direction (2D)
-			Vector3 fwd = ENTITY::GET_ENTITY_FORWARD_VECTOR(handle);
-			fwd.z = 0.0f;
-			fwd = Normalize2D(fwd);
+            // High traction curves = glued to road
+            VEHICLE::SET_VEHICLE_HANDLING_FLOAT(
+                vehicle,
+                "CHandlingData",
+                "fTractionCurveMin",
+                5.0f
+            );
 
-			// Current velocity
-			const auto rawVel = veh.GetVelocity();          // rage::fvector3
-			Vector3 vel(rawVel.x, rawVel.y, rawVel.z);
-
-			// Split velocity into forward + lateral (2D)
-			Vector3 vel2D(vel.x, vel.y, 0.0f);
-			const float forwardSpeed = Dot2D(vel2D, fwd);
-
-			float newForwardSpeed = forwardSpeed;
-
-			// Clamp forward acceleration per tick (helps prevent “spin-up” feel)
-			if (m_HasPrev)
-			{
-				const float delta = newForwardSpeed - m_PrevForwardSpeed;
-				const float clampedDelta = std::clamp(delta, -k_MaxForwardDeltaPerTick, k_MaxForwardDeltaPerTick);
-				newForwardSpeed = m_PrevForwardSpeed + clampedDelta;
-			}
-			else
-			{
-				m_HasPrev = true;
-			}
-
-			m_PrevForwardSpeed = newForwardSpeed;
-
-			const Vector3 forwardVel2D = fwd * newForwardSpeed;
-			const Vector3 lateralVel2D = vel2D - forwardVel2D;
-
-			// Remove most sideways slip
-			const Vector3 newVel2D = forwardVel2D + lateralVel2D * (1.0f - k_LateralDamping);
-
-			// Keep original vertical velocity so bumps/jumps still work
-			veh.SetVelocity(rage::fvector3(newVel2D.x, newVel2D.y, vel.z));
-		}
-	};
-
-	static TractionControl _TractionControl{
-		"tractioncontrol",
-		"Traction Control",
-		"Reduces wheelspin and sideways slip by damping lateral velocity"
-	};
+            VEHICLE::SET_VEHICLE_HANDLING_FLOAT(
+                vehicle,
+                "CHandlingData",
+                "fTractionCurveMax",
+                5.0f
+            );
+        }
+    };
 }
