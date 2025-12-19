@@ -4,64 +4,67 @@
 
 namespace YimMenu::Features
 {
-	class TractionControl : public LoopedCommand
+	class TractionControl final : public LoopedCommand
 	{
 		using LoopedCommand::LoopedCommand;
 
-		int m_LastVehicleHandle = 0;
+		int m_LastVehicle = 0;
 
-		void ResetIfNeeded()
+		void Reset()
 		{
-			if (m_LastVehicleHandle == 0)
+			if (!m_LastVehicle)
 				return;
 
-			// Reset to sane defaults
-			VEHICLE::SET_VEHICLE_FRICTION_OVERRIDE(m_LastVehicleHandle, 1.0f);
-			VEHICLE::_SET_OVERRIDE_TRACTION_LOSS_MULTIPLIER(m_LastVehicleHandle, 1.0f);
-			VEHICLE::SET_VEHICLE_BURNOUT(m_LastVehicleHandle, false);
-
-			m_LastVehicleHandle = 0;
+			VEHICLE::SET_VEHICLE_FRICTION_OVERRIDE(m_LastVehicle, 1.0f);
+			VEHICLE::_SET_OVERRIDE_TRACTION_LOSS_MULTIPLIER(m_LastVehicle, 1.0f);
+			m_LastVehicle = 0;
 		}
 
 		void OnDisable() override
 		{
-			ResetIfNeeded();
+			Reset();
 		}
 
 		void OnTick() override
 		{
-			auto veh = Self::GetVehicle();
-			if (!veh)
+			auto ped = Self::GetPed();
+			if (!ped)
 			{
-				ResetIfNeeded();
+				Reset();
 				return;
 			}
 
-			const int vehHandle = veh.GetHandle();
+			const int pedHandle = ped.GetHandle();
 
-			// Only apply if we're the driver
-			const int myPedHandle = Self::GetPed().GetHandle();
-			if (VEHICLE::GET_PED_IN_VEHICLE_SEAT(vehHandle, -1, false) != myPedHandle)
+			if (!PED::IS_PED_IN_ANY_VEHICLE(pedHandle, false))
 			{
-				// If we were previously modifying a vehicle and we are no longer driving, reset it.
-				if (m_LastVehicleHandle == vehHandle)
-					ResetIfNeeded();
+				Reset();
 				return;
 			}
 
-			m_LastVehicleHandle = vehHandle;
+			const int vehicle = PED::GET_VEHICLE_PED_IS_IN(pedHandle, false);
 
-			// "Glued to the road" settings:
-			VEHICLE::SET_VEHICLE_REDUCE_GRIP(vehHandle, false);                 // ensure grip isn't reduced
-			VEHICLE::SET_VEHICLE_BURNOUT(vehHandle, false);                     // no burnouts
-			VEHICLE::SET_VEHICLE_FRICTION_OVERRIDE(vehHandle, 10.0f);           // very high friction
-			VEHICLE::_SET_OVERRIDE_TRACTION_LOSS_MULTIPLIER(vehHandle, 0.0f);   // minimize traction loss
+			// Must be driver
+			if (VEHICLE::GET_PED_IN_VEHICLE_SEAT(vehicle, -1, false) != pedHandle)
+			{
+				if (m_LastVehicle == vehicle)
+					Reset();
+				return;
+			}
+
+			m_LastVehicle = vehicle;
+
+			// Aggressive grip enforcement (every tick)
+			VEHICLE::SET_VEHICLE_REDUCE_GRIP(vehicle, false);
+			VEHICLE::SET_VEHICLE_FRICTION_OVERRIDE(vehicle, 8.0f);
+			VEHICLE::_SET_OVERRIDE_TRACTION_LOSS_MULTIPLIER(vehicle, 0.0f);
+			VEHICLE::SET_VEHICLE_BURNOUT(vehicle, false);
 		}
 	};
 
 	static TractionControl _TractionControl{
 		"tractioncontrol",
 		"Traction Control",
-		"Makes driven vehicles extremely grippy (no wheelspin / very high traction)"
+		"Eliminates wheelspin and makes vehicles extremely grippy"
 	};
 }
