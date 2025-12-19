@@ -2,59 +2,66 @@
 #include "game/backend/Self.hpp"
 #include "game/gta/Natives.hpp"
 
-namespace YimMenu::Features::Vehicle
+namespace YimMenu::Features
 {
-    static LoopedCommand g_TractionControl{
-        "tractioncontrol",
-        "Traction Control",
-        "Extremely increases vehicle grip and removes wheelspin",
-        []()
-        {
-            if (!g_Self || !g_Self->m_Ped)
-                return;
+	class TractionControl : public LoopedCommand
+	{
+		using LoopedCommand::LoopedCommand;
 
-            Ped ped = g_Self->m_Ped;
+		int m_LastVehicleHandle = 0;
 
-            if (!PED::IS_PED_IN_ANY_VEHICLE(ped, false))
-                return;
+		void ResetIfNeeded()
+		{
+			if (m_LastVehicleHandle == 0)
+				return;
 
-            Vehicle vehicle = PED::GET_VEHICLE_PED_IS_IN(ped, false);
+			// Reset to sane defaults
+			VEHICLE::SET_VEHICLE_FRICTION_OVERRIDE(m_LastVehicleHandle, 1.0f);
+			VEHICLE::_SET_OVERRIDE_TRACTION_LOSS_MULTIPLIER(m_LastVehicleHandle, 1.0f);
+			VEHICLE::SET_VEHICLE_BURNOUT(m_LastVehicleHandle, false);
 
-            if (VEHICLE::GET_PED_IN_VEHICLE_SEAT(vehicle, -1, false) != ped)
-                return;
+			m_LastVehicleHandle = 0;
+		}
 
-            // Disable grip reduction (burnouts/drifting)
-            VEHICLE::SET_VEHICLE_REDUCE_GRIP(vehicle, false);
+		void OnDisable() override
+		{
+			ResetIfNeeded();
+		}
 
-            // Massive friction override
-            VEHICLE::SET_VEHICLE_FRICTION_OVERRIDE(vehicle, 10.0f);
+		void OnTick() override
+		{
+			auto veh = Self::GetVehicle();
+			if (!veh)
+			{
+				ResetIfNeeded();
+				return;
+			}
 
-            // Prevent wheel slip / damage
-            VEHICLE::SET_VEHICLE_WHEELS_CAN_BREAK(vehicle, false);
-            VEHICLE::SET_VEHICLE_WHEELS_CAN_BURST(vehicle, false);
+			const int vehHandle = veh.GetHandle();
 
-            // Eliminate low-speed traction loss
-            VEHICLE::SET_VEHICLE_HANDLING_FLOAT(
-                vehicle,
-                "CHandlingData",
-                "fLowSpeedTractionLossMult",
-                0.0f
-            );
+			// Only apply if we're the driver
+			const int myPedHandle = Self::GetPed().GetHandle();
+			if (VEHICLE::GET_PED_IN_VEHICLE_SEAT(vehHandle, -1, false) != myPedHandle)
+			{
+				// If we were previously modifying a vehicle and we are no longer driving, reset it.
+				if (m_LastVehicleHandle == vehHandle)
+					ResetIfNeeded();
+				return;
+			}
 
-            // High traction curves = glued to road
-            VEHICLE::SET_VEHICLE_HANDLING_FLOAT(
-                vehicle,
-                "CHandlingData",
-                "fTractionCurveMin",
-                5.0f
-            );
+			m_LastVehicleHandle = vehHandle;
 
-            VEHICLE::SET_VEHICLE_HANDLING_FLOAT(
-                vehicle,
-                "CHandlingData",
-                "fTractionCurveMax",
-                5.0f
-            );
-        }
-    };
+			// "Glued to the road" settings:
+			VEHICLE::SET_VEHICLE_REDUCE_GRIP(vehHandle, false);                 // ensure grip isn't reduced
+			VEHICLE::SET_VEHICLE_BURNOUT(vehHandle, false);                     // no burnouts
+			VEHICLE::SET_VEHICLE_FRICTION_OVERRIDE(vehHandle, 10.0f);           // very high friction
+			VEHICLE::_SET_OVERRIDE_TRACTION_LOSS_MULTIPLIER(vehHandle, 0.0f);   // minimize traction loss
+		}
+	};
+
+	static TractionControl _TractionControl{
+		"tractioncontrol",
+		"Traction Control",
+		"Makes driven vehicles extremely grippy (no wheelspin / very high traction)"
+	};
 }
