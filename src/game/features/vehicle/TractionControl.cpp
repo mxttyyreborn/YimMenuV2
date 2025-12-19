@@ -25,41 +25,35 @@ namespace YimMenu::Features
 			Reset();
 		}
 
-		void OnTick() override
-		{
-			auto ped = Self::GetPed();
-			if (!ped)
-			{
-				Reset();
-				return;
-			}
+void OnTick() override
+{
+    auto ped = Self::GetPed();
+    if (!ped)
+        return;
 
-			const int pedHandle = ped.GetHandle();
+    const int pedHandle = ped.GetHandle();
 
-			if (!PED::IS_PED_IN_ANY_VEHICLE(pedHandle, false))
-			{
-				Reset();
-				return;
-			}
+    if (!PED::IS_PED_IN_ANY_VEHICLE(pedHandle, false))
+        return;
 
-			const int vehicle = PED::GET_VEHICLE_PED_IS_IN(pedHandle, false);
+    const int vehicle = PED::GET_VEHICLE_PED_IS_IN(pedHandle, false);
 
-			// Must be driver
-			if (VEHICLE::GET_PED_IN_VEHICLE_SEAT(vehicle, -1, false) != pedHandle)
-			{
-				if (m_LastVehicle == vehicle)
-					Reset();
-				return;
-			}
+    // Driver only
+    if (VEHICLE::GET_PED_IN_VEHICLE_SEAT(vehicle, -1, false) != pedHandle)
+        return;
 
-			m_LastVehicle = vehicle;
+    // HARD traction enforcement
+    VEHICLE::SET_VEHICLE_REDUCE_GRIP(vehicle, false);
 
-			// Aggressive grip enforcement (every tick)
-			VEHICLE::SET_VEHICLE_REDUCE_GRIP(vehicle, false);
-			VEHICLE::SET_VEHICLE_FRICTION_OVERRIDE(vehicle, 8.0f);
-			VEHICLE::_SET_OVERRIDE_TRACTION_LOSS_MULTIPLIER(vehicle, 0.0f);
-			VEHICLE::SET_VEHICLE_BURNOUT(vehicle, false);
-		}
+    // Lock clutch = no wheel slip
+    VEHICLE::SET_VEHICLE_CLUTCH(vehicle, 1.0f);
+
+    // Limit torque to prevent overpowering traction
+    VEHICLE::SET_VEHICLE_ENGINE_TORQUE_MULTIPLIER(vehicle, 0.55f);
+
+    // Extra safety
+    VEHICLE::_SET_OVERRIDE_TRACTION_LOSS_MULTIPLIER(vehicle, 0.0f);
+}
 	};
 
 	static TractionControl _TractionControl{
