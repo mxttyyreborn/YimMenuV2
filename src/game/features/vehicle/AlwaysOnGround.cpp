@@ -19,7 +19,7 @@ namespace YimMenu::Features
 			auto handle = veh.GetHandle();
 
 			const float speed = ENTITY::GET_ENTITY_SPEED(handle);
-			const float downforce = std::clamp(speed * 0.5f, 2.5f, 5.0f);
+			const float downforce = std::clamp(speed * 0.2f, 1.7f, 2.5f);
 
 			ENTITY::APPLY_FORCE_TO_ENTITY_CENTER_OF_MASS(
 				handle,
