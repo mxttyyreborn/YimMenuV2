@@ -15,8 +15,11 @@ namespace YimMenu::Features
 			if (!m_LastVehicle)
 				return;
 
-			VEHICLE::SET_VEHICLE_FRICTION_OVERRIDE(m_LastVehicle, 1.0f);
+			VEHICLE::SET_VEHICLE_REDUCE_GRIP_LEVEL(m_LastVehicle, 1.0f);
 			VEHICLE::_SET_OVERRIDE_TRACTION_LOSS_MULTIPLIER(m_LastVehicle, 1.0f);
+			VEHICLE::SET_VEHICLE_FRICTION_OVERRIDE(m_LastVehicle, 1.0f);
+			VEHICLE::_SET_VEHICLE_MAX_LAUNCH_ENGINE_REVS(m_LastVehicle, 1.0f);
+
 			m_LastVehicle = 0;
 		}
 
@@ -25,40 +28,41 @@ namespace YimMenu::Features
 			Reset();
 		}
 
-void OnTick() override
-{
-    auto ped = Self::GetPed();
-    if (!ped)
-        return;
+		void OnTick() override
+		{
+			auto ped = Self::GetPed();
+			if (!ped)
+			{
+				Reset();
+				return;
+			}
 
-    const int pedHandle = ped.GetHandle();
+			const int pedHandle = ped.GetHandle();
 
-    if (!PED::IS_PED_IN_ANY_VEHICLE(pedHandle, false))
-        return;
+			if (!PED::IS_PED_IN_ANY_VEHICLE(pedHandle, false))
+			{
+				Reset();
+				return;
+			}
 
-    const int vehicle = PED::GET_VEHICLE_PED_IS_IN(pedHandle, false);
+			const int vehicle = PED::GET_VEHICLE_PED_IS_IN(pedHandle, false);
 
-    // Driver only
-    if (VEHICLE::GET_PED_IN_VEHICLE_SEAT(vehicle, -1, false) != pedHandle)
-        return;
+			if (VEHICLE::GET_PED_IN_VEHICLE_SEAT(vehicle, -1, false) != pedHandle)
+			{
+				if (m_LastVehicle == vehicle)
+					Reset();
+				return;
+			}
 
-    // HARD traction enforcement
-    VEHICLE::SET_VEHICLE_REDUCE_GRIP(vehicle, false);
+			m_LastVehicle = vehicle;
 
-    // Lock clutch = no wheel slip
-    VEHICLE::SET_VEHICLE_CLUTCH(vehicle, 1.0f);
-
-    // Limit torque to prevent overpowering traction
-    VEHICLE::SET_VEHICLE_ENGINE_TORQUE_MULTIPLIER(vehicle, 0.55f);
-
-    // Extra safety
-    VEHICLE::_SET_OVERRIDE_TRACTION_LOSS_MULTIPLIER(vehicle, 0.0f);
-}
+			VEHICLE::SET_VEHICLE_REDUCE_GRIP(vehicle, false);
+			VEHICLE::SET_VEHICLE_REDUCE_GRIP_LEVEL(vehicle, 0.0f);          // no grip reduction
+			VEHICLE::_SET_OVERRIDE_TRACTION_LOSS_MULTIPLIER(vehicle, 0.0f); // kill slip
+			VEHICLE::SET_VEHICLE_FRICTION_OVERRIDE(vehicle, 8.0f);          // high tire friction
+			VEHICLE::_SET_VEHICLE_MAX_LAUNCH_ENGINE_REVS(vehicle, 0.35f);   // prevent wheelspin
+		}
 	};
 
-	static TractionControl _TractionControl{
-		"tractioncontrol",
-		"Traction Control",
-		"Eliminates wheelspin and makes vehicles extremely grippy"
-	};
+	static TractionControl _TractionControl{"tractioncontrol", "Traction Control", "Makes vehicles feel glued to the road (no wheelspin)"};
 }
