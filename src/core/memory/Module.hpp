@@ -70,7 +70,7 @@ namespace YimMenu
 		IMAGE_NT_HEADERS* GetNtHeader() const;
 
 	private:
-		template<typename R, typename T>
+		template<typename R = void*, Symbol T>
 		R GetExportImpl(const T symbol) const;
 
 	private:
@@ -127,7 +127,7 @@ namespace YimMenu
 		return GetExportImpl<void*, decltype(ordinal)>(ordinal) != nullptr;
 	}
 
-	template<typename R, typename T>
+	template<typename R, Symbol T>
 	inline R Module::GetExportImpl(const T symbol) const
 	{
 		const auto ntHeader = GetNtHeader();
@@ -142,10 +142,11 @@ namespace YimMenu
 
 		for (std::size_t i = 0; i < exportDirectory->NumberOfNames; i++)
 		{
-			if constexpr (std::is_integral_v<T>)
+			if constexpr (std::is_convertible_v<T, int>)
 			{
 				if (exportDirectory->Base + ordinalOffsets[i] != symbol)
 					continue;
+
 				return m_Base.Add(funcOffsets[ordinalOffsets[i]]).As<R>();
 			}
 			else if constexpr (std::is_convertible_v<T, std::string_view>)
@@ -153,12 +154,13 @@ namespace YimMenu
 				const auto functionName = m_Base.Add(namesOffsets[i]).As<const char*>();
 				if (strcmp(functionName, symbol.data()))
 					continue;
+
 				return m_Base.Add(funcOffsets[ordinalOffsets[i]]).As<R>();
 			}
 			else
 			{
-				static_assert(std::is_integral_v<T> || std::is_convertible_v<T, std::string_view>,
-				    "Unsupported symbol type");
+				static_assert(false, "Unsupported symbol type");
+
 			}
 		}
 
