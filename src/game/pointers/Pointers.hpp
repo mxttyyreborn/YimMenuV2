@@ -167,6 +167,8 @@ namespace YimMenu
 		PVOID MatchmakingUpdate;
 		PVOID MatchmakingUnadvertise;
 		PVOID MatchmakingSessionDetailSendResponse;
+		PVOID GetLabelText;
+		PVOID GetLabelTextInternal;
 	};
 
 	struct Pointers : PointerData
