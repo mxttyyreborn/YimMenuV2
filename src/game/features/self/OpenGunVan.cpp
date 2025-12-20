@@ -10,7 +10,7 @@ namespace YimMenu::Features::Self
 
 		void OnCall() override
 		{
-			auto ped = Self::GetPed();
+			auto ped = ::YimMenu::Self::GetPed();
 			if (!ped)
 				return;
 
@@ -24,8 +24,6 @@ namespace YimMenu::Features::Self
 
 			Vector3 pos = HUD::GET_BLIP_COORDS(blip);
 
-			Vector3 oldPos = ENTITY::GET_ENTITY_COORDS(pedHandle, false);
-
 			ENTITY::SET_ENTITY_COORDS(
 				pedHandle,
 				pos.x,
@@ -36,10 +34,8 @@ namespace YimMenu::Features::Self
 				false,
 				true
 			);
-
-			PLAYER::SET_PLAYER_CONTROL(PLAYER::PLAYER_ID(), true, 0);
 		}
 	};
 
-	static OpenGunVan _OpenGunVan{"opengunvan", "Open Gun Van", "Teleport to the Gun Van and open the shop"};
+	static OpenGunVan _OpenGunVan{ "opengunvan", "Open Gun Van", "Teleport to the Gun Van"};
 }
