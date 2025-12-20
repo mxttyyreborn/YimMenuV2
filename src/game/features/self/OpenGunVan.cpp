@@ -1,4 +1,5 @@
 #include "core/commands/Command.hpp"
+#include "game/backend/Self.hpp"
 #include "game/gta/Natives.hpp"
 
 namespace YimMenu::Features::Self
@@ -9,15 +10,36 @@ namespace YimMenu::Features::Self
 
 		void OnCall() override
 		{
-			HUD::SET_FRONTEND_ACTIVE(true);
+			auto ped = Self::GetPed();
+			if (!ped)
+				return;
 
-			HUD::ACTIVATE_FRONTEND_MENU(
-				MISC::GET_HASH_KEY("FE_MENU_VERSION_GUNVAN"),
+			const int pedHandle = ped.GetHandle();
+
+			const int gunVanBlipSprite = 810;
+
+			int blip = HUD::GET_FIRST_BLIP_INFO_ID(gunVanBlipSprite);
+			if (!HUD::DOES_BLIP_EXIST(blip))
+				return;
+
+			Vector3 pos = HUD::GET_BLIP_COORDS(blip);
+
+			Vector3 oldPos = ENTITY::GET_ENTITY_COORDS(pedHandle, false);
+
+			ENTITY::SET_ENTITY_COORDS(
+				pedHandle,
+				pos.x,
+				pos.y,
+				pos.z + 1.0f,
 				false,
-				-1
+				false,
+				false,
+				true
 			);
+
+			PLAYER::SET_PLAYER_CONTROL(PLAYER::PLAYER_ID(), true, 0);
 		}
 	};
 
-	static OpenGunVan _OpenGunVan{"opengunvan", "Open Gun Van", "Open the Gun Van shop remotely"};
+	static OpenGunVan _OpenGunVan{"opengunvan", "Open Gun Van", "Teleport to the Gun Van and open the shop"};
 }
