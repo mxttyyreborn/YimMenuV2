@@ -1,6 +1,5 @@
 #include "core/commands/Command.hpp"
 #include "game/backend/Self.hpp"
-#include "game/backend/Entities.hpp"
 #include "game/gta/Natives.hpp"
 
 namespace YimMenu::Features::Self
@@ -19,24 +18,26 @@ namespace YimMenu::Features::Self
 
 			const Hash gunVanModel = MISC::GET_HASH_KEY("weapontruck");
 
-			Vehicle gunVan = 0;
+			int vehicles[1024]{};
+			const int count = VEHICLE::GET_ALL_VEHICLES(vehicles, 1024);
 
-			for (auto& veh : Entities::GetVehicles())
+			int gunVan = 0;
+
+			for (int i = 0; i < count; ++i)
 			{
-				if (!veh)
+				const int veh = vehicles[i];
+				if (!ENTITY::DOES_ENTITY_EXIST(veh))
 					continue;
 
-				const int handle = veh.GetHandle();
-
-				if (ENTITY::GET_ENTITY_MODEL(handle) == gunVanModel)
+				if (ENTITY::GET_ENTITY_MODEL(veh) == gunVanModel)
 				{
-					gunVan = handle;
+					gunVan = veh;
 					break;
 				}
 			}
 
 			if (!gunVan)
-				return;
+				return; // Gun Van not spawned yet
 
 			Vector3 pos = ENTITY::GET_ENTITY_COORDS(gunVan, false);
 
@@ -53,5 +54,5 @@ namespace YimMenu::Features::Self
 		}
 	};
 
-	static OpenGunVan _OpenGunVan{"opengunvan", "Goto Gun Van", "Teleport to the current Gun Van location"};
+	static OpenGunVan _OpenGunVan{"opengunvan", "Open Gun Van", "Teleport to the current Gun Van location"};
 }
