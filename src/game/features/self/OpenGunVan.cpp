@@ -1,5 +1,6 @@
 #include "core/commands/Command.hpp"
 #include "game/backend/Self.hpp"
+#include "game/backend/Entities.hpp"
 #include "game/gta/Natives.hpp"
 
 namespace YimMenu::Features::Self
@@ -16,13 +17,28 @@ namespace YimMenu::Features::Self
 
 			const int pedHandle = ped.GetHandle();
 
-			const int gunVanBlipSprite = 810;
+			const Hash gunVanModel = MISC::GET_HASH_KEY("weapontruck");
 
-			int blip = HUD::GET_FIRST_BLIP_INFO_ID(gunVanBlipSprite);
-			if (!HUD::DOES_BLIP_EXIST(blip))
+			Vehicle gunVan = 0;
+
+			for (auto& veh : Entities::GetVehicles())
+			{
+				if (!veh)
+					continue;
+
+				const int handle = veh.GetHandle();
+
+				if (ENTITY::GET_ENTITY_MODEL(handle) == gunVanModel)
+				{
+					gunVan = handle;
+					break;
+				}
+			}
+
+			if (!gunVan)
 				return;
 
-			Vector3 pos = HUD::GET_BLIP_COORDS(blip);
+			Vector3 pos = ENTITY::GET_ENTITY_COORDS(gunVan, false);
 
 			ENTITY::SET_ENTITY_COORDS(
 				pedHandle,
@@ -37,5 +53,5 @@ namespace YimMenu::Features::Self
 		}
 	};
 
-	static OpenGunVan _OpenGunVan{ "opengunvan", "Open Gun Van", "Teleport to the Gun Van"};
+	static OpenGunVan _OpenGunVan{"opengunvan", "Goto Gun Van", "Teleport to the current Gun Van location"};
 }
