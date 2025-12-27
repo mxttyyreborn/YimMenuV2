@@ -335,7 +335,7 @@ namespace YimMenu::Features
 		{
 			using Command::Command;
 
-		virutal void OnCall() override
+		virtual void OnCall() override
 		{
 			if (auto thread = Scripts::FindScriptThread("fm_mission_controller"_J))
 			{
