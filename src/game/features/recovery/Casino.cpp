@@ -83,6 +83,7 @@ virtual void OnDisable() override
 						return;
 					}
 				}
+				
 				for (int slots_iter = 3; slots_iter <= 196; ++slots_iter)
 				{
 					if (!slots_blacklist.contains(slots_iter))
