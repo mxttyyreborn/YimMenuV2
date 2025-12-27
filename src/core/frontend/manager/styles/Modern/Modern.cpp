@@ -68,7 +68,7 @@ namespace YimMenu
 			ImU32 hoveredIconColor = IM_COL32(160, 30, 30, 255);
 			ImU32 iconColor = submenu == activeSubmenu ? activeIconColor : (hovered ? hoveredIconColor : defaultIconColor);
 
-			ImGui::PushFont(YimMenu::Menu::Font::g_AwesomeFont);
+			ImGui::PushFont(YimMenu::Menu::Font::g_AwesomeFont, YimMenu::Menu::Font::g_AwesomeFontSize);
 			ImVec2 iconSize = ImGui::CalcTextSize(submenu->m_Icon.c_str());
 			ImVec2 iconPos(center.x - iconSize.x / 2, center.y - iconSize.y / 2);
 			drawList->AddText(YimMenu::Menu::Font::g_AwesomeFont, 0.0f, iconPos, iconColor, submenu->m_Icon.c_str());
